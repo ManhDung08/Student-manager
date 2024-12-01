@@ -1,5 +1,6 @@
 package com.example.crud_sinhvien.fragments
 
+import StudentModel
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,25 +10,11 @@ import android.widget.EditText
 import androidx.fragment.app.Fragment
 import com.example.crud_sinhvien.MainActivity
 import com.example.crud_sinhvien.R
-import com.example.crud_sinhvien.StudentModel
+import androidx.navigation.fragment.findNavController
 
 class EditStudentFragment : Fragment() {
-
     private lateinit var editTextName: EditText
     private lateinit var editTextId: EditText
-    private lateinit var buttonSave: Button
-    private lateinit var student: StudentModel
-
-    companion object {
-        fun newInstance(student: StudentModel): EditStudentFragment {
-            val fragment = EditStudentFragment()
-            val bundle = Bundle()
-            bundle.putString("studentName", student.studentName)
-            bundle.putString("studentId", student.studentId)
-            fragment.arguments = bundle
-            return fragment
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,23 +26,29 @@ class EditStudentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        student = StudentModel(
-            arguments?.getString("studentName") ?: "",
-            arguments?.getString("studentId") ?: ""
-        )
+        // Lấy sinh viên từ arguments
+        val student = requireArguments().getParcelable<StudentModel>("student")!!
 
         editTextName = view.findViewById(R.id.editTextStudentName)
         editTextId = view.findViewById(R.id.editTextStudentId)
-        buttonSave = view.findViewById(R.id.buttonUpdateStudent)
 
         editTextName.setText(student.studentName)
         editTextId.setText(student.studentId)
 
-        buttonSave.setOnClickListener {
-            student.studentName = editTextName.text.toString()
-            student.studentId = editTextId.text.toString()
+        view.findViewById<Button>(R.id.buttonUpdateStudent).setOnClickListener {
+            val updatedStudent = StudentModel(
+                editTextName.text.toString(),
+                editTextId.text.toString()
+            )
 
-            (activity as MainActivity).openFragment(StudentListFragment())
+            // Cập nhật sinh viên
+            (activity as MainActivity).updateStudent(
+                student.studentName,
+                student.studentId,
+                updatedStudent
+            )
+
+            findNavController().navigateUp()
         }
     }
 }

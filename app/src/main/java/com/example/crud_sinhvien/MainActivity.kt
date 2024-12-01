@@ -1,19 +1,13 @@
 package com.example.crud_sinhvien
 
-import StudentAdapter
+import StudentModel
 import android.os.Bundle
-import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.AdapterView
-import android.widget.FrameLayout
-import android.widget.ListView
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import com.example.crud_sinhvien.fragments.AddStudentFragment
-import com.example.crud_sinhvien.fragments.EditStudentFragment
+import androidx.navigation.findNavController
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,8 +34,6 @@ class MainActivity : AppCompatActivity() {
         StudentModel("Lê Văn Vũ", "SV020")
     )
 
-    private lateinit var listViewStudents: ListView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -49,72 +41,35 @@ class MainActivity : AppCompatActivity() {
         // Set up the Toolbar
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-
-        listViewStudents = findViewById(R.id.listViewStudents)
-
-        val adapter = StudentAdapter(this, students)
-        listViewStudents.adapter = adapter
-
-        listViewStudents.setOnItemClickListener { _, _, position, _ ->
-            val student = students[position]
-            val fragment = EditStudentFragment.newInstance(student)
-            openFragment(fragment)
-        }
-        registerForContextMenu(listViewStudents)
     }
 
+    // Tạo options menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.option_menu, menu)
         return true
     }
 
+    // Xử lý sự kiện options menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.add_new -> {
-                val fragment = AddStudentFragment()
-                openFragment(fragment)
+                // Điều hướng đến AddStudentFragment
+                findNavController(R.id.nav_host_fragment)
+                    .navigate(R.id.action_studentListFragment_to_addStudentFragment)
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    override fun onCreateContextMenu(
-        menu: ContextMenu?, view: View?, menuInfo: ContextMenu.ContextMenuInfo?
-    ) {
-        super.onCreateContextMenu(menu, view, menuInfo)
-
-        if (view is ListView) {
-            menuInflater.inflate(R.menu.context_menu, menu)
+    // Phương thức cập nhật sinh viên
+    fun updateStudent(originalName: String, originalId: String, updatedStudent: StudentModel) {
+        val index = students.indexOfFirst {
+            it.studentName == originalName && it.studentId == originalId
         }
-    }
 
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.edit_student -> {
-                val info = item.menuInfo as AdapterView.AdapterContextMenuInfo
-                val student = students[info.position]
-                val fragment = EditStudentFragment.newInstance(student)
-                openFragment(fragment)
-                true
-            }
-            R.id.remove_student -> {
-                val info = item.menuInfo as AdapterView.AdapterContextMenuInfo
-                students.removeAt(info.position)  // Xóa sinh viên tại vị trí
-                (listViewStudents.adapter as StudentAdapter).notifyDataSetChanged()
-                true
-            }
-            else -> super.onContextItemSelected(item)
+        if (index != -1) {
+            students[index] = updatedStudent
         }
-    }
-
-
-
-    fun openFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-        findViewById<FrameLayout>(R.id.fragment_container).visibility = View.VISIBLE
     }
 }
