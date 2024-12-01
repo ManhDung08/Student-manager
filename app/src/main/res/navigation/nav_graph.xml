@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/studentListFragment">
+
+    <fragment
+        android:id="@+id/studentListFragment"
+        android:name="com.example.crud_sinhvien.fragments.StudentListFragment"
+        android:label="Student List" />
+
+    <fragment
+        android:id="@+id/addStudentFragment"
+        android:name="com.example.crud_sinhvien.AddStudentFragment"
+        android:label="Add Student" />
+
+    <fragment
+        android:id="@+id/editStudentFragment"
+        android:name="com.example.crud_sinhvien.EditStudentFragment"
+        android:label="Edit Student">
+        <argument
+            android:name="studentIndex"
+            app:argType="integer" />
+    </fragment>
+</navigation>
